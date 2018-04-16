@@ -14,6 +14,7 @@ import (
 const (
 	//EntryLifeDuration Time an entry is kept before being deleted
 	EntryLifeDuration = time.Hour * 24
+	ListenPort        = ":8080"
 )
 
 var srv http.Server
@@ -23,6 +24,7 @@ type reqdata struct {
 	Method     string
 	Header     http.Header
 	URL        url.URL
+	Body       []byte
 	Time       time.Time
 }
 
@@ -40,7 +42,7 @@ func main() {
 	http.HandleFunc("/new", handleNew)
 	http.HandleFunc("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./html/js"))).ServeHTTP)
 	http.HandleFunc("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./html/css"))).ServeHTTP)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(ListenPort, nil))
 }
 
 func handleGeneric(w http.ResponseWriter, req *http.Request) {
@@ -74,7 +76,15 @@ func handleRequest(w http.ResponseWriter, req *http.Request) {
 			}*/
 			http.StripPrefix(prefix, http.FileServer(http.Dir("./html/entry"))).ServeHTTP(w, req)
 		default:
-			datastore[id] = dataEntry{append(datastore[id].Data, reqdata{req.RemoteAddr, req.Method, req.Header, *req.URL, time.Now()}), datastore[id].CreationTime}
+			// Get request body
+			bdy := make([]byte, 1024)
+			nb, _ := req.Body.Read(bdy)
+			//Get remote address, if theres a X-forwarded-for we take it over "req.RemoteAddr"
+			remaddr := req.RemoteAddr
+			if _, valid := req.Header["X-Forwarded-For"]; valid {
+				remaddr = req.Header["X-Forwarded-For"][0]
+			}
+			datastore[id] = dataEntry{append(datastore[id].Data, reqdata{remaddr, req.Method, req.Header, *req.URL, bdy[:nb], time.Now()}), datastore[id].CreationTime}
 
 		}
 	} else {
