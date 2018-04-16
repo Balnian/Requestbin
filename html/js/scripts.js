@@ -51,7 +51,7 @@ function fillData(){
                             '<li class="list-group-item"><strong>Method:</strong> '+data[i].Method+'</li>'+
                             '<li class="list-group-item"><strong>User-Agent:</strong> '+data[i].Header["User-Agent"]+'</li>'+
                             '<li class="list-group-item"><strong>Query:</strong> '+data[i].URL["RawQuery"]+'</li>'+
-                            '<li class="list-group-item"><strong>Body:</strong> '+'<pre><code>'+data[i].Body+'</code></pre>'+'</li>'+
+                            '<li class="list-group-item"><strong>Body(base64):</strong> '+'<pre><code>'+data[i].Body+'</code></pre>'+'</li>'+
                             //'<li class="list-group-item"><strong>'++'</strong> '++'</li>'+
                             '</ul>'+
                             
