@@ -13,8 +13,9 @@ import (
 
 const (
 	//EntryLifeDuration Time an entry is kept before being deleted
-	EntryLifeDuration = time.Hour * 24
+	EntryLifeDuration = time.Hour * 4
 	ListenPort        = ":8080"
+	MaxBodyDataSize   = 1024 * 5
 )
 
 var srv http.Server
@@ -77,7 +78,7 @@ func handleRequest(w http.ResponseWriter, req *http.Request) {
 			http.StripPrefix(prefix, http.FileServer(http.Dir("./html/entry"))).ServeHTTP(w, req)
 		default:
 			// Get request body
-			bdy := make([]byte, 1024)
+			bdy := make([]byte, MaxBodyDataSize)
 			nb, _ := req.Body.Read(bdy)
 			//Get remote address, if theres a X-forwarded-for we take it over "req.RemoteAddr"
 			remaddr := req.RemoteAddr
